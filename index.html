@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Adversarial Robustness Scanner Evaluation Portal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>AI Adversarial Robustness Scanner Evaluation Portal</h1>
+        <p>Our AI Adversarial Robustness Scanner helps vendors evaluate their AI model robustness against adversarial attacks and provides enterprise users with decision-making criteria regarding AI robustness.</p>
+        
+        <!-- User Input Form -->
+        <form class="evaluation-form" id="eval-form">
+            <label for="ai-model">Select AI Model:</label>
+            <select id="ai-model" name="ai-model">
+                <option value="" disabled selected>Select a model</option>
+                <option value="resnet">ResNet</option>
+                <option value="amil">AMIL</option>
+                <option value="vgg">VGG</option>
+                <option value="vit">Custom_net</option>
+                <option value="new">Add New</option>
+            </select>
+
+            <label for="image-specs">Image Specifications:</label>
+            <select id="image-specs" name="image-specs">
+                <option value="" disabled selected>Select specifications</option>
+                <option value="jpeg_224">JPEG, 224x224, normalized</option>
+                <option value="png_256">PNG, 256x256, normalized</option>
+                <option value="dicom">DICOM</option>
+                <option value="jpeg_custom">JPEG, custom resolution & preprocessing</option>
+            </select>
+
+            <button type="submit">Run Evaluation</button>
+        </form>
+    </header>
+
+    <!-- Evaluation Summary -->
+    <section class="evaluation-summary hidden-section" id="evaluation-summary">
+        <h2>Evaluation Summary</h2>
+        <p>The selected AI model was evaluated against four types of adversarial attacks: DISZOMS, DISZOMS_PSG, ZORO, and AdaZORO. The evaluation measures model robustness across these attacks and highlights critical insights for developers and enterprise decision-makers.</p>
+        
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Baseline</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>Attack Success Rate</td>
+                <td>0%</td>
+                <td>23%</td>
+            </tr>
+            <tr>
+                <td>Probability Drop</td>
+                <td>0</td>
+                <td>0.18</td>
+            </tr>
+            <tr>
+                <td>Computation Time</td>
+                <td>0 s</td>
+                <td>12.4 s</td>
+            </tr>
+            <tr>
+                <td>Number of Model Calls</td>
+                <td>0</td>
+                <td>210</td>
+            </tr>
+            <tr>
+                <td>Average Distance</td>
+                <td>0</td>
+                <td>0.15</td>
+            </tr>
+            <tr>
+                <td>Resulting Classification</td>
+                <td>-</td>
+                <td>
+                    <div id="classification" class="classification critical">Critical</div>
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- Attack Resistance Score -->
+    <section class="attack-resistance hidden-section" id="attack-resistance">
+        <h2>Attack Resistance Score</h2>
+        <table class="aligned-table">
+            <tr>
+                <th>Attack Type</th>
+                <th>Resistance Score</th>
+            </tr>
+            <tr>
+                <td>DISZOMS</td>
+                <td>85%</td>
+            </tr>
+            <tr>
+                <td>DISZOMS_PSG</td>
+                <td>78%</td>
+            </tr>
+            <tr>
+                <td>ZORO</td>
+                <td>92%</td>
+            </tr>
+            <tr>
+                <td>AdaZORO</td>
+                <td>80%</td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- Perturbed Images Table -->
+    <section class="perturbed-images hidden-section" id="perturbed-images">
+        <h2>Perturbed Image Samples</h2>
+        <table>
+            <tr>
+                <th>Before Attack</th>
+                <th>Attack Sample</th>
+                <th>After Attack</th>
+            </tr>
+            <tr>
+                <td>
+                    <img src="Picture1.PNG" alt="Before Attack: Benign"><br>
+                    <span>Original Image (Benign)</span>
+                </td>
+                <td>
+                    <img src="Picture2.PNG" alt="Attack Sample"><br>
+                    <span>Attack Applied</span>
+                </td>
+                <td>
+                    <img src="Picture3.PNG" alt="After Attack: Malignant"><br>
+                    <span>Resulting Image (Malignant)</span>
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- Recommendations -->
+    <section class="recommendations hidden-section" id="recommendations">
+        <h2>Recommendations</h2>
+        <ul>
+            <li>Prioritize patching models with high attack success rates.</li>
+            <li>Enhance preprocessing and input normalization to improve robustness.</li>
+            <li>Implement ensemble or defensive strategies against adversarial attacks.</li>
+            <li>Regularly monitor AI model behavior under different adversarial scenarios.</li>
+            <li>Integrate robustness evaluation in deployment pipeline for ongoing assessment.</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>© 2025 Robustness Evaluation Team</p>
+    </footer>
+
+    <script>
+        const form = document.getElementById('eval-form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Show sections after evaluation
+            document.getElementById('evaluation-summary').classList.remove('hidden-section');
+            document.getElementById('attack-resistance').classList.remove('hidden-section');
+            document.getElementById('perturbed-images').classList.remove('hidden-section');
+            document.getElementById('recommendations').classList.remove('hidden-section');
+        });
+    </script>
+</body>
+</html>

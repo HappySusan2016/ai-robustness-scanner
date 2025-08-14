@@ -1,0 +1,134 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f7f7f7;
+    color: #333;
+}
+
+header {
+    background-color: #1e1e2f;
+    color: #fff;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2em;
+}
+
+header p {
+    margin-top: 10px;
+    font-size: 1.1em;
+    line-height: 1.5em;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.evaluation-form {
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 500px;
+}
+
+.evaluation-form label {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.evaluation-form select, .evaluation-form button {
+    margin-top: 5px;
+    padding: 8px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    margin-top: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    padding: 10px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+section {
+    max-width: 900px;
+    margin: 30px auto;
+    background-color: #fff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: #1e1e2f;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.classification {
+    padding: 5px 10px;
+    color: #fff;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.critical { background-color: #d32f2f; }
+.high { background-color: #f57c00; }
+.medium { background-color: #fbc02d; color: #000; }
+.low { background-color: #388e3c; }
+
+.image-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.image-gallery img {
+    max-width: 200px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #1e1e2f;
+    color: #fff;
+    margin-top: 30px;
+}
+
+.hidden-section {
+    display: none;
+}
+
+.aligned-table {
+    margin: 0 auto;
+}
