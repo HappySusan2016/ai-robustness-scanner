@@ -1,199 +1,371 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Adversarial Robustness Scanner Evaluation Portal</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        .hidden-section {
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Adversarial Robustness Scanner Evaluation Portal</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Keep your CSS unchanged; this helper is already in your page */
+    .hidden-section { display: none; }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>AI Adversarial Robustness Scanner Evaluation Portal</h1>
-        <p>Our AI Adversarial Robustness Scanner helps vendors evaluate their AI model robustness against adversarial attacks and provides enterprise users with decision-making criteria regarding AI robustness.</p>
-        
-        <!-- User Input Form -->
-        <form class="evaluation-form" id="eval-form">
-            <label for="ai-model">Select AI Model:</label>
-            <select id="ai-model" name="ai-model">
-                <option value="" disabled selected>Select a model</option>
-                <option value="resnet">ResNet</option>
-                <option value="amil">AMIL</option>
-                <option value="vgg">VGG</option>
-                <option value="vit">Custom_net</option>
-                <option value="new">Add New</option>
-            </select>
-            
-            <label for="dataset">Select Dataset:</label>
-            <select id="dataset" name="dataset">
-                <option value="" disabled selected>Select a dataset</option>
-                <option value="breast_cancer">Breast Cancer</option>
-                <option value="new_dataset">Add New</option>
-            </select>
-            
-            <label for="image-specs">Image Specifications:</label>
-            <select id="image-specs" name="image-specs">
-                <option value="" disabled selected>Select specifications</option>
-                <option value="jpeg_224">JPEG, 224x224, normalized</option>
-                <option value="png_256">PNG, 256x256, normalized</option>
-                <option value="dicom">DICOM</option>
-                <option value="jpeg_custom">JPEG, custom resolution & preprocessing</option>
-            </select>
+  <header>
+    <h1>AI Adversarial Robustness Scanner Evaluation Portal</h1>
+    <p>
+      Our AI Adversarial Robustness Scanner helps vendors evaluate their AI model robustness
+      against adversarial attacks and provides enterprise users with decision-making criteria
+      regarding AI robustness.
+    </p>
 
-            <button type="submit">Run Evaluation</button>
-        </form>
-    </header>
+    <!-- User Input Form -->
+    <form class="evaluation-form" id="eval-form">
+      <label for="ai-model">Select AI Model:</label>
+      <select id="ai-model" name="ai-model" required>
+        <option value="" disabled selected>Select a model</option>
+        <option value="resnet">ResNet</option>
+        <option value="amil">AMIL</option>
+        <option value="vgg">VGG</option>
+        <option value="vit">Custom_net</option>
+        <option value="new">Add New</option>
+      </select>
 
-    <!-- Evaluation Summary -->
-    <section class="evaluation-summary hidden-section" id="evaluation-summary">
-        <h2>Evaluation Summary</h2>
-        <p id="eval-description"></p>
-        
-        <table>
-            <tr>
-                <th>Metric</th>
-                <th>Baseline</th>
-                <th>Value</th>
-            </tr>
-            <tr>
-                <td>Attack Success Rate</td>
-                <td>0%</td>
-                <td id="attack-success">-</td>
-            </tr>
-            <tr>
-                <td>Probability Drop</td>
-                <td>0</td>
-                <td id="prob-drop">-</td>
-            </tr>
-            <tr>
-                <td>Computation Time</td>
-                <td>0 s</td>
-                <td id="comp-time">-</td>
-            </tr>
-            <tr>
-                <td>Number of Model Calls</td>
-                <td>0</td>
-                <td id="model-calls">-</td>
-            </tr>
-            <tr>
-                <td>Average Distance</td>
-                <td>0</td>
-                <td id="avg-distance">-</td>
-            </tr>
-            <tr>
-                <td>Ease of Exploitation</td>
-                <td>-</td>
-                <td id="ease-exploit">-</td>
-            </tr>
-            <tr>
-                <td>Resulting Classification</td>
-                <td>-</td>
-                <td>
-                    <div id="classification" class="classification">-</div>
-                </td>
-            </tr>
-        </table>
-    </section>
+      <label for="dataset">Select Dataset:</label>
+      <select id="dataset" name="dataset" required>
+        <option value="" disabled selected>Select a dataset</option>
+        <option value="breast_cancer">Breast Cancer</option>
+        <option value="new_dataset">Add New</option>
+      </select>
 
-    <!-- Attack Resistance Score -->
-    <section class="attack-resistance hidden-section" id="attack-resistance">
-        <h2>Attack Resistance Score</h2>
-        <table class="aligned-table" id="resistance-table">
-            <tr>
-                <th>Attack Type</th>
-                <th>Resistance Score</th>
-            </tr>
-        </table>
-    </section>
+      <label for="image-specs">Image Specifications:</label>
+      <select id="image-specs" name="image-specs" required>
+        <option value="" disabled selected>Select specifications</option>
+        <option value="jpeg_224">JPEG, 224x224, normalized</option>
+        <option value="png_256">PNG, 256x256, normalized</option>
+        <option value="dicom">DICOM</option>
+        <option value="jpeg_custom">JPEG, custom resolution & preprocessing</option>
+      </select>
 
-    <!-- Perturbed Images Table -->
-    <section class="perturbed-images hidden-section" id="perturbed-images">
-        <h2>Perturbed Image Samples</h2>
-        <table>
-            <tr>
-                <th>Before Attack</th>
-                <th>Attack Sample</th>
-                <th>After Attack</th>
-            </tr>
-            <tr>
-                <td><img id="img-before" src="" alt="Before Attack"><br><span id="label-before"></span></td>
-                <td><img id="img-attack" src="" alt="Attack Sample"><br><span>Attack Applied</span></td>
-                <td><img id="img-after" src="" alt="After Attack"><br><span id="label-after"></span></td>
-            </tr>
-        </table>
-    </section>
+      <button type="submit" id="run-btn">Run Evaluation</button>
+    </form>
+  </header>
 
-    <!-- Recommendations -->
-    <section class="recommendations hidden-section" id="recommendations">
-        <h2>Recommendations</h2>
-        <ul id="rec-list"></ul>
-    </section>
+  <!-- Evaluation Summary -->
+  <section class="evaluation-summary hidden-section" id="evaluation-summary">
+    <h2>Evaluation Summary</h2>
+    <p id="eval-description"></p>
 
-    <footer>
-        <p>© 2025 Robustness Evaluation Team</p>
-    </footer>
+    <table>
+      <tr>
+        <th>Metric</th>
+        <th>What it means</th>
+        <th>Baseline</th>
+        <th>Value</th>
+      </tr>
+      <tr>
+        <td>Attack Success Rate</td>
+        <td>Percent of attacks that flipped the model’s decision.</td>
+        <td>0%</td>
+        <td id="attack-success">-</td>
+      </tr>
+      <tr>
+        <td>Probability Drop</td>
+        <td>Decrease in predicted class probability due to attack.</td>
+        <td>0</td>
+        <td id="prob-drop">-</td>
+      </tr>
+      <tr>
+        <td>Computation Time</td>
+        <td>Time required to generate an adversarial example.</td>
+        <td>0 s</td>
+        <td id="comp-time">-</td>
+      </tr>
+      <tr>
+        <td>Number of Model Calls</td>
+        <td>Total queries to the model during attack.</td>
+        <td>0</td>
+        <td id="model-calls">-</td>
+      </tr>
+      <tr>
+        <td>Average Distance</td>
+        <td>Average perturbation magnitude (e.g., L2/L∞ norm).</td>
+        <td>0</td>
+        <td id="avg-distance">-</td>
+      </tr>
+      <tr>
+        <td>Ease of Exploitation</td>
+        <td>Qualitative estimate of how easy it is to attack.</td>
+        <td>-</td>
+        <td id="ease-exploit">-</td>
+      </tr>
+      <tr>
+        <td>Resulting Classification</td>
+        <td>Overall risk level under attack.</td>
+        <td>-</td>
+        <td>
+          <div id="classification" class="classification" style="display:inline-block;padding:4px 8px;border-radius:12px;">-</div>
+        </td>
+      </tr>
+    </table>
+  </section>
 
-    <script>
-        // evalData object remains exactly as in your provided code
-        // (omitted here for brevity — keep your existing evalData block unchanged)
+  <!-- Attack Resistance Score -->
+  <section class="attack-resistance hidden-section" id="attack-resistance">
+    <h2>Attack Resistance Score</h2>
+    <table class="aligned-table" id="resistance-table">
+      <tr>
+        <th>Attack Type</th>
+        <th>Resistance Score</th>
+      </tr>
+    </table>
+  </section>
 
-        document.getElementById('eval-form').addEventListener('submit', function(e) {
-            e.preventDefault();
+  <!-- Perturbed Images Table -->
+  <section class="perturbed-images hidden-section" id="perturbed-images">
+    <h2>Perturbed Image Samples</h2>
+    <table>
+      <tr>
+        <th>Before Attack</th>
+        <th>Attack Sample</th>
+        <th>After Attack</th>
+      </tr>
+      <tr>
+        <td>
+          <img id="img-before" src="" alt="Before Attack"><br/>
+          <span id="label-before"></span>
+        </td>
+        <td>
+          <img id="img-attack" src="" alt="Attack Sample"><br/>
+          <span>Attack Applied</span>
+        </td>
+        <td>
+          <img id="img-after" src="" alt="After Attack"><br/>
+          <span id="label-after"></span>
+        </td>
+      </tr>
+    </table>
+  </section>
 
-            const dataset = document.getElementById('dataset').value;
-            const model = document.getElementById('ai-model').value;
+  <!-- Recommendations -->
+  <section class="recommendations hidden-section" id="recommendations">
+    <h2>Recommendations</h2>
+    <ul id="rec-list"></ul>
+  </section>
 
-            if (evalData[dataset] && evalData[dataset][model]) {
-                const data = evalData[dataset][model];
+  <footer>
+    <p>© 2025 Robustness Evaluation Team</p>
+  </footer>
 
-                // Update description
-                document.getElementById('eval-description').innerText = data.description;
+  <script>
+    // --- Simulated evaluation data ---
+    const evalData = {
+      breast_cancer: {
+        resnet: {
+          description: "ResNet model tested on Breast Cancer dataset.",
+          metrics: { attackSuccess: "23%", probDrop: "0.18", compTime: "12.4 s", modelCalls: "210", avgDistance: "0.15", classification: "Critical", easeExploit: "High" },
+          resistance: { DISZOMS: "85%", DISZOMS_PSG: "78%", ZORO: "92%", AdaZORO: "80%" },
+          images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Benign)", afterLabel: "Resulting Image (Malignant)" },
+          recommendations: [
+            "Prioritize patching models with high attack success rates.",
+            "Enhance preprocessing and input normalization to improve robustness.",
+            "Implement ensemble or defensive strategies against adversarial attacks.",
+            "Regularly monitor AI model behavior under different adversarial scenarios.",
+            "Integrate robustness evaluation in deployment pipeline for ongoing assessment."
+          ]
+        },
+        amil: {
+          description: "AMIL model tested on Breast Cancer dataset.",
+          metrics: { attackSuccess: "15%", probDrop: "0.10", compTime: "10.2 s", modelCalls: "180", avgDistance: "0.12", classification: "Stable", easeExploit: "Medium" },
+          resistance: { DISZOMS: "90%", DISZOMS_PSG: "85%", ZORO: "95%", AdaZORO: "88%" },
+          images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Benign)", afterLabel: "Resulting Image (Benign)" },
+          recommendations: [
+            "Maintain current preprocessing pipeline.",
+            "Monitor for new attack vectors.",
+            "Consider periodic robustness re-evaluation."
+          ]
+        },
+        vgg: {
+          description: "VGG model tested on Breast Cancer dataset.",
+          metrics: { attackSuccess: "30%", probDrop: "0.22", compTime: "14.8 s", modelCalls: "230", avgDistance: "0.18", classification: "Vulnerable", easeExploit: "High" },
+          resistance: { DISZOMS: "80%", DISZOMS_PSG: "70%", ZORO: "88%", AdaZORO: "75%" },
+          images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Benign)", afterLabel: "Resulting Image (Malignant)" },
+          recommendations: [
+            "Strengthen model defenses.",
+            "Increase training data diversity.",
+            "Apply adversarial training techniques."
+          ]
+        },
+        vit: {
+          description: "Custom_net model tested on Breast Cancer dataset.",
+          metrics: { attackSuccess: "10%", probDrop: "0.05", compTime: "8.5 s", modelCalls: "150", avgDistance: "0.09", classification: "Robust", easeExploit: "Low" },
+          resistance: { DISZOMS: "95%", DISZOMS_PSG: "90%", ZORO: "97%", AdaZORO: "93%" },
+          images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Benign)", afterLabel: "Resulting Image (Benign)" },
+          recommendations: [
+            "Continue monitoring robustness.",
+            "Share best practices with other teams.",
+            "Document model improvements."
+          ]
+        }
+      },
+      new_dataset: {
+        resnet: {
+          description: "ResNet model tested on New Dataset.",
+          metrics: { attackSuccess: "20%", probDrop: "0.16", compTime: "11.0 s", modelCalls: "200", avgDistance: "0.13", classification: "Moderate", easeExploit: "Medium" },
+          resistance: { DISZOMS: "88%", DISZOMS_PSG: "80%", ZORO: "90%", AdaZORO: "85%" },
+          images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Class A)", afterLabel: "Resulting Image (Class B)" },
+          recommendations: [
+            "Review model architecture for vulnerabilities.",
+            "Update dataset preprocessing steps.",
+            "Schedule regular robustness scans."
+          ]
+        },
+        amil: {
+          description: "AMIL model tested on New Dataset.",
+          metrics: { attackSuccess: "12%", probDrop: "0.08", compTime: "9.0 s", modelCalls: "160", avgDistance: "0.10", classification: "Stable", easeExploit: "Low" },
+          resistance: { DISZOMS: "92%", DISZOMS_PSG: "87%", ZORO: "96%", AdaZORO: "90%" },
+          images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Class A)", afterLabel: "Resulting Image (Class A)" },
+          recommendations: [
+            "Maintain current robustness strategies.",
+            "Monitor for new adversarial techniques.",
+            "Document evaluation results."
+          ]
+        },
+        vgg: {
+          description: "VGG model tested on New Dataset.",
+          metrics: { attackSuccess: "25%", probDrop: "0.20", compTime: "13.5 s", modelCalls: "220", avgDistance: "0.16", classification: "Vulnerable", easeExploit: "High" },
+          resistance: { DISZOMS: "82%", DISZOMS_PSG: "75%", ZORO: "89%", AdaZORO: "78%" },
+          images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Class A)", afterLabel: "Resulting Image (Class B)" },
+          recommendations: [
+            "Increase model robustness via adversarial training.",
+            "Expand dataset for better generalization.",
+            "Monitor model performance post-deployment."
+          ]
+        },
+        vit: {
+          description: "Custom_net model tested on New Dataset.",
+          metrics: { attackSuccess: "8%", probDrop: "0.03", compTime: "7.8 s", modelCalls: "140", avgDistance: "0.07", classification: "Robust", easeExploit: "Low" },
+          resistance: { DISZOMS: "97%", DISZOMS_PSG: "93%", ZORO: "98%", AdaZORO: "95%" },
+          images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Class A)", afterLabel: "Resulting Image (Class A)" },
+          recommendations: [
+            "Continue current robustness practices.",
+            "Share evaluation results with stakeholders.",
+            "Plan for future robustness improvements."
+          ]
+        }
+      }
+    };
 
-                // Update metrics
-                document.getElementById('attack-success').innerText = data.metrics.attackSuccess;
-                document.getElementById('prob-drop').innerText = data.metrics.probDrop;
-                document.getElementById('comp-time').innerText = data.metrics.compTime;
-                document.getElementById('model-calls').innerText = data.metrics.modelCalls;
-                document.getElementById('avg-distance').innerText = data.metrics.avgDistance;
-                document.getElementById('classification').innerText = data.metrics.classification;
-                document.getElementById('ease-exploit').innerText = data.metrics.easeExploit;
+    // --- Helpers for inline color coding (no CSS file changes) ---
+    function scoreToColor(percent) {
+      // percent is "85%" -> number 85
+      const p = parseFloat(String(percent).replace('%','')) || 0;
+      if (p >= 90) return {bg:"#2e7d32", fg:"#ffffff", label:"High resistance"};
+      if (p >= 75) return {bg:"#fdd835", fg:"#000000", label:"Moderate resistance"};
+      return {bg:"#c62828", fg:"#ffffff", label:"Low resistance"};
+    }
 
-                // Update resistance table
-                const resistanceTable = document.getElementById('resistance-table');
-                resistanceTable.innerHTML = "<tr><th>Attack Type</th><th>Resistance Score</th></tr>";
-                for (const [attack, score] of Object.entries(data.resistance)) {
-                    const row = `<tr><td>${attack}</td><td>${score}</td></tr>`;
-                    resistanceTable.innerHTML += row;
-                }
+    function classificationStyle(label) {
+      const t = (label || "").toLowerCase();
+      if (t.includes("critical")) return {bg:"#c62828", fg:"#ffffff"};
+      if (t.includes("vulnerable") || t.includes("high")) return {bg:"#ef6c00", fg:"#ffffff"};
+      if (t.includes("moderate")) return {bg:"#fdd835", fg:"#000000"};
+      if (t.includes("stable")) return {bg:"#81c784", fg:"#000000"};
+      if (t.includes("robust") || t.includes("low")) return {bg:"#2e7d32", fg:"#ffffff"};
+      // default
+      return {bg:"#e0e0e0", fg:"#000000"};
+    }
 
-                // Update images
-                document.getElementById('img-before').src = data.images.before;
-                document.getElementById('img-attack').src = data.images.attack;
-                document.getElementById('img-after').src = data.images.after;
-                document.getElementById('label-before').innerText = data.images.beforeLabel;
-                document.getElementById('label-after').innerText = data.images.afterLabel;
+    // --- Form handling ---
+    const form = document.getElementById('eval-form');
+    const runBtn = document.getElementById('run-btn');
 
-                // Update recommendations
-                const recList = document.getElementById('rec-list');
-                recList.innerHTML = "";
-                data.recommendations.forEach(rec => {
-                    const li = document.createElement('li');
-                    li.innerText = rec;
-                    recList.appendChild(li);
-                });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
 
-                // Show all sections
-                document.getElementById('evaluation-summary').classList.remove('hidden-section');
-                document.getElementById('attack-resistance').classList.remove('hidden-section');
-                document.getElementById('perturbed-images').classList.remove('hidden-section');
-                document.getElementById('recommendations').classList.remove('hidden-section');
-            } else {
-                alert("No evaluation data available for the selected model and dataset.");
-            }
-        });
-    </script>
+      const dataset = document.getElementById('dataset').value;
+      const model = document.getElementById('ai-model').value;
+
+      // Basic validation
+      if (!dataset || !model) {
+        alert("Please select both a dataset and a model.");
+        return;
+      }
+
+      const datasetBlock = evalData[dataset];
+      const data = datasetBlock ? datasetBlock[model] : undefined;
+
+      if (!data) {
+        alert("No evaluation data available for the selected model and dataset.");
+        return;
+      }
+
+      // Update description
+      document.getElementById('eval-description').innerText = data.description;
+
+      // Update metrics
+      document.getElementById('attack-success').innerText = data.metrics.attackSuccess;
+      document.getElementById('prob-drop').innerText = data.metrics.probDrop;
+      document.getElementById('comp-time').innerText = data.metrics.compTime;
+      document.getElementById('model-calls').innerText = data.metrics.modelCalls;
+      document.getElementById('avg-distance').innerText = data.metrics.avgDistance;
+      document.getElementById('ease-exploit').innerText = data.metrics.easeExploit;
+
+      // Classification with inline color (no CSS changes)
+      const classDiv = document.getElementById('classification');
+      classDiv.textContent = data.metrics.classification;
+      const cls = classificationStyle(data.metrics.classification);
+      classDiv.style.backgroundColor = cls.bg;
+      classDiv.style.color = cls.fg;
+
+      // Update resistance table with colored cells
+      const resistanceTable = document.getElementById('resistance-table');
+      resistanceTable.innerHTML = "<tr><th>Attack Type</th><th>Resistance Score</th></tr>";
+      Object.entries(data.resistance).forEach(([attack, score]) => {
+        const {bg, fg, label} = scoreToColor(score);
+        const row = document.createElement('tr');
+        const tdAttack = document.createElement('td');
+        tdAttack.textContent = attack;
+
+        const tdScore = document.createElement('td');
+        tdScore.textContent = `${score} (${label})`;
+        tdScore.style.backgroundColor = bg;
+        tdScore.style.color = fg;
+        tdScore.style.fontWeight = "600";
+
+        row.appendChild(tdAttack);
+        row.appendChild(tdScore);
+        resistanceTable.appendChild(row);
+      });
+
+      // Update images
+      document.getElementById('img-before').src = data.images.before;
+      document.getElementById('img-attack').src = data.images.attack;
+      document.getElementById('img-after').src = data.images.after;
+      document.getElementById('label-before').innerText = data.images.beforeLabel;
+      document.getElementById('label-after').innerText = data.images.afterLabel;
+
+      // Update recommendations
+      const recList = document.getElementById('rec-list');
+      recList.innerHTML = "";
+      data.recommendations.forEach(rec => {
+        const li = document.createElement('li');
+        li.innerText = rec;
+        recList.appendChild(li);
+      });
+
+      // Reveal sections
+      document.getElementById('evaluation-summary').classList.remove('hidden-section');
+      document.getElementById('attack-resistance').classList.remove('hidden-section');
+      document.getElementById('perturbed-images').classList.remove('hidden-section');
+      document.getElementById('recommendations').classList.remove('hidden-section');
+
+      // Keep user inputs unchanged after click (locks fields)
+      document.getElementById('ai-model').disabled = true;
+      document.getElementById('dataset').disabled = true;
+      document.getElementById('image-specs').disabled = true;
+      runBtn.disabled = true;
+    });
+  </script>
 </body>
 </html>
