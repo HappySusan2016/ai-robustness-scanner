@@ -18,12 +18,7 @@
         
         <!-- User Input Form -->
         <form class="evaluation-form" id="eval-form">
-            <label for="dataset">Select Dataset:</label>
-            <select id="dataset" name="dataset">
-                <option value="" disabled selected>Select a dataset</option>
-                <option value="breast_cancer">Breast Cancer</option>
-                <option value="new_dataset">Add New</option>
-            </select>
+            
 
             <label for="ai-model">Select AI Model:</label>
             <select id="ai-model" name="ai-model">
@@ -34,7 +29,14 @@
                 <option value="vit">Custom_net</option>
                 <option value="new">Add New</option>
             </select>
-
+            
+            <label for="dataset">Select Dataset:</label>
+            <select id="dataset" name="dataset">
+                <option value="" disabled selected>Select a dataset</option>
+                <option value="breast_cancer">Breast Cancer</option>
+                <option value="new_dataset">Add New</option>
+            </select>
+            
             <label for="image-specs">Image Specifications:</label>
             <select id="image-specs" name="image-specs">
                 <option value="" disabled selected>Select specifications</option>
@@ -91,6 +93,11 @@
                     <div id="classification" class="classification">-</div>
                 </td>
             </tr>
+            <tr>
+                <td>Ease of Exploitation</td>
+                <td>-</td>
+                <td id="ease-exploit">-</td>
+            </tr>
         </table>
     </section>
 
@@ -137,7 +144,7 @@
             breast_cancer: {
                 resnet: {
                     description: "ResNet model tested on Breast Cancer dataset.",
-                    metrics: { attackSuccess: "23%", probDrop: "0.18", compTime: "12.4 s", modelCalls: "210", avgDistance: "0.15", classification: "Critical" },
+                    metrics: { attackSuccess: "23%", probDrop: "0.18", compTime: "12.4 s", modelCalls: "210", avgDistance: "0.15", classification: "Critical", easeExploit: "High" },
                     resistance: { DISZOMS: "85%", DISZOMS_PSG: "78%", ZORO: "92%", AdaZORO: "80%" },
                     images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Benign)", afterLabel: "Resulting Image (Malignant)" },
                     recommendations: [
@@ -146,6 +153,85 @@
                         "Implement ensemble or defensive strategies against adversarial attacks.",
                         "Regularly monitor AI model behavior under different adversarial scenarios.",
                         "Integrate robustness evaluation in deployment pipeline for ongoing assessment."
+                    ]
+                },
+                amil: {
+                    description: "AMIL model tested on Breast Cancer dataset.",
+                    metrics: { attackSuccess: "15%", probDrop: "0.10", compTime: "10.2 s", modelCalls: "180", avgDistance: "0.12", classification: "Stable", easeExploit: "Medium" },
+                    resistance: { DISZOMS: "90%", DISZOMS_PSG: "85%", ZORO: "95%", AdaZORO: "88%" },
+                    images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Benign)", afterLabel: "Resulting Image (Benign)" },
+                    recommendations: [
+                        "Maintain current preprocessing pipeline.",
+                        "Monitor for new attack vectors.",
+                        "Consider periodic robustness re-evaluation."
+                    ]
+                },
+                vgg: {
+                    description: "VGG model tested on Breast Cancer dataset.",
+                    metrics: { attackSuccess: "30%", probDrop: "0.22", compTime: "14.8 s", modelCalls: "230", avgDistance: "0.18", classification: "Vulnerable", easeExploit: "High" },
+                    resistance: { DISZOMS: "80%", DISZOMS_PSG: "70%", ZORO: "88%", AdaZORO: "75%" },
+                    images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Benign)", afterLabel: "Resulting Image (Malignant)" },
+                    recommendations: [
+                        "Strengthen model defenses.",
+                        "Increase training data diversity.",
+                        "Apply adversarial training techniques."
+                    ]
+                },
+                vit: {
+                    description: "Custom_net model tested on Breast Cancer dataset.",
+                    metrics: { attackSuccess: "10%", probDrop: "0.05", compTime: "8.5 s", modelCalls: "150", avgDistance: "0.09", classification: "Robust", easeExploit: "Low" },
+                    resistance: { DISZOMS: "95%", DISZOMS_PSG: "90%", ZORO: "97%", AdaZORO: "93%" },
+                    images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Benign)", afterLabel: "Resulting Image (Benign)" },
+                    recommendations: [
+                        "Continue monitoring robustness.",
+                        "Share best practices with other teams.",
+                        "Document model improvements."
+                    ]
+                }
+            },
+            new_dataset: {
+                resnet: {
+                    description: "ResNet model tested on New Dataset.",
+                    metrics: { attackSuccess: "20%", probDrop: "0.16", compTime: "11.0 s", modelCalls: "200", avgDistance: "0.13", classification: "Moderate", easeExploit: "Medium" },
+                    resistance: { DISZOMS: "88%", DISZOMS_PSG: "80%", ZORO: "90%", AdaZORO: "85%" },
+                    images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Class A)", afterLabel: "Resulting Image (Class B)" },
+                    recommendations: [
+                        "Review model architecture for vulnerabilities.",
+                        "Update dataset preprocessing steps.",
+                        "Schedule regular robustness scans."
+                    ]
+                },
+                amil: {
+                    description: "AMIL model tested on New Dataset.",
+                    metrics: { attackSuccess: "12%", probDrop: "0.08", compTime: "9.0 s", modelCalls: "160", avgDistance: "0.10", classification: "Stable", easeExploit: "Low" },
+                    resistance: { DISZOMS: "92%", DISZOMS_PSG: "87%", ZORO: "96%", AdaZORO: "90%" },
+                    images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Class A)", afterLabel: "Resulting Image (Class A)" },
+                    recommendations: [
+                        "Maintain current robustness strategies.",
+                        "Monitor for new adversarial techniques.",
+                        "Document evaluation results."
+                    ]
+                },
+                vgg: {
+                    description: "VGG model tested on New Dataset.",
+                    metrics: { attackSuccess: "25%", probDrop: "0.20", compTime: "13.5 s", modelCalls: "220", avgDistance: "0.16", classification: "Vulnerable", easeExploit: "High" },
+                    resistance: { DISZOMS: "82%", DISZOMS_PSG: "75%", ZORO: "89%", AdaZORO: "78%" },
+                    images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Class A)", afterLabel: "Resulting Image (Class B)" },
+                    recommendations: [
+                        "Increase model robustness via adversarial training.",
+                        "Expand dataset for better generalization.",
+                        "Monitor model performance post-deployment."
+                    ]
+                },
+                vit: {
+                    description: "Custom_net model tested on New Dataset.",
+                    metrics: { attackSuccess: "8%", probDrop: "0.03", compTime: "7.8 s", modelCalls: "140", avgDistance: "0.07", classification: "Robust", easeExploit: "Low" },
+                    resistance: { DISZOMS: "97%", DISZOMS_PSG: "93%", ZORO: "98%", AdaZORO: "95%" },
+                    images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Class A)", afterLabel: "Resulting Image (Class A)" },
+                    recommendations: [
+                        "Continue current robustness practices.",
+                        "Share evaluation results with stakeholders.",
+                        "Plan for future robustness improvements."
                     ]
                 }
             }
@@ -170,6 +256,7 @@
                 document.getElementById('model-calls').innerText = data.metrics.modelCalls;
                 document.getElementById('avg-distance').innerText = data.metrics.avgDistance;
                 document.getElementById('classification').innerText = data.metrics.classification;
+                document.getElementById('ease-exploit').innerText = data.metrics.easeExploit;
 
                 // Update resistance table
                 const resistanceTable = document.getElementById('resistance-table');
