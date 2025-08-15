@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Adversarial Robustness Scanner Evaluation Portal</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .hidden-section {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -13,6 +18,13 @@
         
         <!-- User Input Form -->
         <form class="evaluation-form" id="eval-form">
+            <label for="dataset">Select Dataset:</label>
+            <select id="dataset" name="dataset">
+                <option value="" disabled selected>Select a dataset</option>
+                <option value="breast_cancer">Breast Cancer</option>
+                <option value="new_dataset">Add New</option>
+            </select>
+
             <label for="ai-model">Select AI Model:</label>
             <select id="ai-model" name="ai-model">
                 <option value="" disabled selected>Select a model</option>
@@ -39,7 +51,7 @@
     <!-- Evaluation Summary -->
     <section class="evaluation-summary hidden-section" id="evaluation-summary">
         <h2>Evaluation Summary</h2>
-        <p>The selected AI model was evaluated against four types of adversarial attacks: DISZOMS, DISZOMS_PSG, ZORO, and AdaZORO. The evaluation measures model robustness across these attacks and highlights critical insights for developers and enterprise decision-makers.</p>
+        <p id="eval-description"></p>
         
         <table>
             <tr>
@@ -50,33 +62,33 @@
             <tr>
                 <td>Attack Success Rate</td>
                 <td>0%</td>
-                <td>23%</td>
+                <td id="attack-success">-</td>
             </tr>
             <tr>
                 <td>Probability Drop</td>
                 <td>0</td>
-                <td>0.18</td>
+                <td id="prob-drop">-</td>
             </tr>
             <tr>
                 <td>Computation Time</td>
                 <td>0 s</td>
-                <td>12.4 s</td>
+                <td id="comp-time">-</td>
             </tr>
             <tr>
                 <td>Number of Model Calls</td>
                 <td>0</td>
-                <td>210</td>
+                <td id="model-calls">-</td>
             </tr>
             <tr>
                 <td>Average Distance</td>
                 <td>0</td>
-                <td>0.15</td>
+                <td id="avg-distance">-</td>
             </tr>
             <tr>
                 <td>Resulting Classification</td>
                 <td>-</td>
                 <td>
-                    <div id="classification" class="classification critical">Critical</div>
+                    <div id="classification" class="classification">-</div>
                 </td>
             </tr>
         </table>
@@ -85,26 +97,10 @@
     <!-- Attack Resistance Score -->
     <section class="attack-resistance hidden-section" id="attack-resistance">
         <h2>Attack Resistance Score</h2>
-        <table class="aligned-table">
+        <table class="aligned-table" id="resistance-table">
             <tr>
                 <th>Attack Type</th>
                 <th>Resistance Score</th>
-            </tr>
-            <tr>
-                <td>DISZOMS</td>
-                <td>85%</td>
-            </tr>
-            <tr>
-                <td>DISZOMS_PSG</td>
-                <td>78%</td>
-            </tr>
-            <tr>
-                <td>ZORO</td>
-                <td>92%</td>
-            </tr>
-            <tr>
-                <td>AdaZORO</td>
-                <td>80%</td>
             </tr>
         </table>
     </section>
@@ -119,18 +115,9 @@
                 <th>After Attack</th>
             </tr>
             <tr>
-                <td>
-                    <img src="Picture1.png" alt="Before Attack: Benign"><br>
-                    <span>Original Image (Benign)</span>
-                </td>
-                <td>
-                    <img src="Picture2.png" alt="Attack Sample"><br>
-                    <span>Attack Applied</span>
-                </td>
-                <td>
-                    <img src="Picture3.png" alt="After Attack: Malignant"><br>
-                    <span>Resulting Image (Malignant)</span>
-                </td>
+                <td><img id="img-before" src="" alt="Before Attack"><br><span id="label-before"></span></td>
+                <td><img id="img-attack" src="" alt="Attack Sample"><br><span>Attack Applied</span></td>
+                <td><img id="img-after" src="" alt="After Attack"><br><span id="label-after"></span></td>
             </tr>
         </table>
     </section>
@@ -138,13 +125,7 @@
     <!-- Recommendations -->
     <section class="recommendations hidden-section" id="recommendations">
         <h2>Recommendations</h2>
-        <ul>
-            <li>Prioritize patching models with high attack success rates.</li>
-            <li>Enhance preprocessing and input normalization to improve robustness.</li>
-            <li>Implement ensemble or defensive strategies against adversarial attacks.</li>
-            <li>Regularly monitor AI model behavior under different adversarial scenarios.</li>
-            <li>Integrate robustness evaluation in deployment pipeline for ongoing assessment.</li>
-        </ul>
+        <ul id="rec-list"></ul>
     </section>
 
     <footer>
@@ -152,14 +133,76 @@
     </footer>
 
     <script>
-        const form = document.getElementById('eval-form');
-        form.addEventListener('submit', function(e) {
+        const evalData = {
+            breast_cancer: {
+                resnet: {
+                    description: "ResNet model tested on Breast Cancer dataset.",
+                    metrics: { attackSuccess: "23%", probDrop: "0.18", compTime: "12.4 s", modelCalls: "210", avgDistance: "0.15", classification: "Critical" },
+                    resistance: { DISZOMS: "85%", DISZOMS_PSG: "78%", ZORO: "92%", AdaZORO: "80%" },
+                    images: { before: "Picture1.png", attack: "Picture2.png", after: "Picture3.png", beforeLabel: "Original Image (Benign)", afterLabel: "Resulting Image (Malignant)" },
+                    recommendations: [
+                        "Prioritize patching models with high attack success rates.",
+                        "Enhance preprocessing and input normalization to improve robustness.",
+                        "Implement ensemble or defensive strategies against adversarial attacks.",
+                        "Regularly monitor AI model behavior under different adversarial scenarios.",
+                        "Integrate robustness evaluation in deployment pipeline for ongoing assessment."
+                    ]
+                }
+            }
+        };
+
+        document.getElementById('eval-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            // Show sections after evaluation
-            document.getElementById('evaluation-summary').classList.remove('hidden-section');
-            document.getElementById('attack-resistance').classList.remove('hidden-section');
-            document.getElementById('perturbed-images').classList.remove('hidden-section');
-            document.getElementById('recommendations').classList.remove('hidden-section');
+
+            const dataset = document.getElementById('dataset').value;
+            const model = document.getElementById('ai-model').value;
+
+            if (evalData[dataset] && evalData[dataset][model]) {
+                const data = evalData[dataset][model];
+
+                // Update description
+                document.getElementById('eval-description').innerText = data.description;
+
+                // Update metrics
+                document.getElementById('attack-success').innerText = data.metrics.attackSuccess;
+                document.getElementById('prob-drop').innerText = data.metrics.probDrop;
+                document.getElementById('comp-time').innerText = data.metrics.compTime;
+                document.getElementById('model-calls').innerText = data.metrics.modelCalls;
+                document.getElementById('avg-distance').innerText = data.metrics.avgDistance;
+                document.getElementById('classification').innerText = data.metrics.classification;
+
+                // Update resistance table
+                const resistanceTable = document.getElementById('resistance-table');
+                resistanceTable.innerHTML = "<tr><th>Attack Type</th><th>Resistance Score</th></tr>";
+                for (const [attack, score] of Object.entries(data.resistance)) {
+                    const row = `<tr><td>${attack}</td><td>${score}</td></tr>`;
+                    resistanceTable.innerHTML += row;
+                }
+
+                // Update images
+                document.getElementById('img-before').src = data.images.before;
+                document.getElementById('img-attack').src = data.images.attack;
+                document.getElementById('img-after').src = data.images.after;
+                document.getElementById('label-before').innerText = data.images.beforeLabel;
+                document.getElementById('label-after').innerText = data.images.afterLabel;
+
+                // Update recommendations
+                const recList = document.getElementById('rec-list');
+                recList.innerHTML = "";
+                data.recommendations.forEach(rec => {
+                    const li = document.createElement('li');
+                    li.innerText = rec;
+                    recList.appendChild(li);
+                });
+
+                // Show all sections
+                document.getElementById('evaluation-summary').classList.remove('hidden-section');
+                document.getElementById('attack-resistance').classList.remove('hidden-section');
+                document.getElementById('perturbed-images').classList.remove('hidden-section');
+                document.getElementById('recommendations').classList.remove('hidden-section');
+            } else {
+                alert("No evaluation data available for the selected model and dataset.");
+            }
         });
     </script>
 </body>
