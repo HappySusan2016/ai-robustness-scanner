@@ -1,161 +1,882 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Adversarial Robustness Scanner Evaluation Portal</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>RedShield AI | Adversarial Robustness Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    /* Keep your CSS unchanged; this helper is already in your page */
-    .hidden-section { display: none; }
+    :root {
+      --bg: #05070a;
+      --bg-elevated: #0a0d12;
+      --glass: rgba(255, 255, 255, 0.03);
+      --glass-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-bright: rgba(255, 255, 255, 0.15);
+      --accent-primary: #00f2ff;
+      --accent-secondary: #7000ff;
+      --text-main: #e0e6ed;
+      --text-dim: #6b7a8f;
+      --text-bright: #ffffff;
+      --prism-1: rgba(0, 242, 255, 0.12);
+      --prism-2: rgba(112, 0, 255, 0.12);
+      --success: #00ff88;
+      --warning: #ffaa00;
+      --danger: #ff3e3e;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* === BACKGROUND EFFECTS === */
+    .vitreous-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      background: 
+        radial-gradient(ellipse at 15% 20%, var(--prism-1) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 60%, var(--prism-2) 0%, transparent 50%);
+      filter: blur(100px);
+    }
+
+    .grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+    }
+
+    .shard {
+      position: fixed;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* === NAVIGATION === */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.25rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(5, 7, 10, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: -1px;
+      font-size: 1.35rem;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-bright);
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      animation: pulse-glow 3s infinite ease-in-out;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(0, 242, 255, 0.6); }
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--accent-primary);
+    }
+
+    /* === MAIN CONTAINER === */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 8rem 2rem 4rem;
+    }
+
+    /* === HEADER === */
+    header {
+      margin-bottom: 3rem;
+    }
+
+    .page-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 6px 14px;
+      background: rgba(0, 242, 255, 0.08);
+      border: 1px solid rgba(0, 242, 255, 0.25);
+      border-radius: 20px;
+      color: var(--accent-primary);
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .page-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent-primary);
+      border-radius: 50%;
+      animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.3; }
+    }
+
+    header h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--text-bright), var(--text-dim));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header > p {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      max-width: 700px;
+      line-height: 1.7;
+    }
+
+    /* === GLASS PANEL === */
+    .glass-panel {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.4),
+        inset 0 1px 1px rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-panel::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: -100%;
+      width: 300%;
+      height: 300%;
+      background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.02) 45%,
+        rgba(255, 255, 255, 0.04) 50%,
+        rgba(255, 255, 255, 0.02) 55%,
+        transparent 60%
+      );
+      animation: sweep 8s infinite linear;
+      pointer-events: none;
+    }
+
+    @keyframes sweep {
+      0% { transform: translate(-30%, -30%) rotate(-25deg); }
+      100% { transform: translate(30%, 30%) rotate(-25deg); }
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .panel-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--success);
+    }
+
+    .panel-status::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    /* === FORM STYLES === */
+    .evaluation-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      align-items: end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .form-group select {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.875rem 1rem;
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7a8f' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+    }
+
+    .form-group select:hover {
+      border-color: var(--border-bright);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(0, 242, 255, 0.1);
+    }
+
+    .form-group select:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .form-group select option {
+      background: var(--bg);
+      color: var(--text-main);
+      padding: 0.5rem;
+    }
+
+    /* === BUTTONS === */
+    .btn {
+      padding: 1rem 2rem;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      background: var(--text-main);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-primary);
+      box-shadow: 0 0 40px rgba(0, 242, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-bright);
+    }
+
+    .btn-secondary:hover {
+      background: var(--glass-hover);
+      border-color: var(--accent-primary);
+    }
+
+    /* === SECTIONS === */
+    section {
+      margin-top: 2rem;
+    }
+
+    section h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    section h2::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+      border-radius: 2px;
+    }
+
+    .hidden-section {
+      display: none;
+    }
+
+    /* === TABLES === */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-align: left;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+      transition: background 0.2s ease;
+    }
+
+    table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .metric-description {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .baseline-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--accent-primary);
+    }
+
+    /* === CLASSIFICATION BADGES === */
+    .classification {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .classification-critical {
+      background: rgba(255, 62, 62, 0.2);
+      color: var(--danger);
+      border: 1px solid rgba(255, 62, 62, 0.3);
+    }
+
+    .classification-vulnerable {
+      background: rgba(255, 170, 0, 0.2);
+      color: var(--warning);
+      border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+
+    .classification-moderate {
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffd54f;
+      border: 1px solid rgba(255, 213, 79, 0.3);
+    }
+
+    .classification-stable {
+      background: rgba(0, 255, 136, 0.15);
+      color: #81c784;
+      border: 1px solid rgba(129, 199, 132, 0.3);
+    }
+
+    .classification-robust {
+      background: rgba(0, 255, 136, 0.2);
+      color: var(--success);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    /* === RESISTANCE SCORES === */
+    .resistance-high {
+      background: rgba(0, 255, 136, 0.15) !important;
+      color: var(--success) !important;
+    }
+
+    .resistance-medium {
+      background: rgba(255, 170, 0, 0.15) !important;
+      color: var(--warning) !important;
+    }
+
+    .resistance-low {
+      background: rgba(255, 62, 62, 0.15) !important;
+      color: var(--danger) !important;
+    }
+
+    /* === IMAGES GRID === */
+    .images-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .image-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .image-card:hover {
+      border-color: var(--border-bright);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .image-card img {
+      max-width: 100%;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .image-card .image-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .image-card .image-result {
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .image-card.attack-card {
+      border-color: rgba(255, 62, 62, 0.3);
+      background: rgba(255, 62, 62, 0.05);
+    }
+
+    .image-card.attack-card .image-label {
+      color: var(--danger);
+    }
+
+    /* === RECOMMENDATIONS === */
+    .recommendations-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .recommendations-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 1rem 1.25rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 3px solid var(--accent-primary);
+      font-size: 0.95rem;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+    }
+
+    .recommendations-list li:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-left-color: var(--accent-secondary);
+    }
+
+    .recommendations-list li::before {
+      content: '→';
+      color: var(--accent-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+
+    /* === FOOTER === */
+    footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    /* === EVALUATION DESCRIPTION === */
+    #eval-description {
+      font-size: 1rem;
+      color: var(--text-dim);
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(0, 242, 255, 0.05);
+      border-left: 3px solid var(--accent-primary);
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 900px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+      
+      .nav-links {
+        display: none;
+      }
+
+      .container {
+        padding: 7rem 1.5rem 3rem;
+      }
+
+      .evaluation-form {
+        grid-template-columns: 1fr;
+      }
+
+      .images-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 0.8rem;
+      }
+
+      table th, table td {
+        padding: 0.75rem 0.5rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>AI Adversarial Robustness Scanner Evaluation Portal</h1>
-    <p>
-      Our AI Adversarial Robustness Scanner helps vendors evaluate their AI model robustness
-      against adversarial attacks and provides enterprise users with decision-making criteria
-      regarding AI robustness.
-    </p>
 
-    <!-- User Input Form -->
-    <form class="evaluation-form" id="eval-form">
-      <label for="ai-model">Select AI Model:</label>
-      <select id="ai-model" name="ai-model" required>
-        <option value="" disabled selected>Select a model</option>
-        <option value="resnet">ResNet</option>
-        <option value="amil">AMIL</option>
-        <option value="vgg">VGG</option>
-        <option value="vit">Custom_net</option>
-        <option value="new">Add New</option>
-      </select>
+  <div class="vitreous-bg"></div>
+  <div class="grid-overlay"></div>
+  <div class="shard" style="width: 350px; height: 350px; top: 10%; left: -8%; transform: rotate(15deg);"></div>
+  <div class="shard" style="width: 250px; height: 400px; bottom: 15%; right: -6%; transform: rotate(-10deg);"></div>
 
-      <label for="dataset">Select Dataset:</label>
-      <select id="dataset" name="dataset" required>
-        <option value="" disabled selected>Select a dataset</option>
-        <option value="breast_cancer">Breast Cancer</option>
-        <option value="new_dataset">Add New</option>
-      </select>
+  <!-- Navigation -->
+  <nav>
+    <a href="#" class="brand">
+      <div class="brand-icon"></div>
+      RedShield AI
+    </a>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#" class="active">Scanner</a>
+      <a href="#">Reports</a>
+      <a href="#">Documentation</a>
+    </div>
+  </nav>
 
-      <label for="image-specs">Image Specifications:</label>
-      <select id="image-specs" name="image-specs" required>
-        <option value="" disabled selected>Select specifications</option>
-        <option value="jpeg_224">JPEG, 224x224, normalized</option>
-        <option value="png_256">PNG, 256x256, normalized</option>
-        <option value="dicom">DICOM</option>
-        <option value="jpeg_custom">JPEG, custom resolution & preprocessing</option>
-      </select>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="page-badge">Evaluation Portal</div>
+      <h1>AI Adversarial Robustness Scanner</h1>
+      <p>
+        Our AI Adversarial Robustness Scanner helps vendors evaluate their AI model robustness
+        against adversarial attacks and provides enterprise users with decision-making criteria
+        regarding AI robustness.
+      </p>
+    </header>
 
-      <button type="submit" id="run-btn">Run Evaluation</button>
-    </form>
-  </header>
+    <!-- Configuration Panel -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <span class="panel-title">Scan Configuration</span>
+        <span class="panel-status" id="panel-status" style="display: none;">Running</span>
+      </div>
 
-  <!-- Evaluation Summary -->
-  <section class="evaluation-summary hidden-section" id="evaluation-summary">
-    <h2>Evaluation Summary</h2>
-    <p id="eval-description"></p>
+      <form class="evaluation-form" id="eval-form">
+        <div class="form-group">
+          <label for="ai-model">AI Model</label>
+          <select id="ai-model" name="ai-model" required>
+            <option value="" disabled selected>Select a model</option>
+            <option value="resnet">ResNet</option>
+            <option value="amil">AMIL</option>
+            <option value="vgg">VGG</option>
+            <option value="vit">Custom_net</option>
+          </select>
+        </div>
 
-    <table>
-      <tr>
-        <th>Metric</th>
-        <th>What it means</th>
-        <th>Baseline</th>
-        <th>Value</th>
-      </tr>
-      <tr>
-        <td>Attack Success Rate</td>
-        <td>Percent of attacks that flipped the model’s decision.</td>
-        <td>0%</td>
-        <td id="attack-success">-</td>
-      </tr>
-      <tr>
-        <td>Probability Drop</td>
-        <td>Decrease in predicted class probability due to attack.</td>
-        <td>0</td>
-        <td id="prob-drop">-</td>
-      </tr>
-      <tr>
-        <td>Computation Time</td>
-        <td>Time required to generate an adversarial example.</td>
-        <td>0 s</td>
-        <td id="comp-time">-</td>
-      </tr>
-      <tr>
-        <td>Number of Model Calls</td>
-        <td>Total queries to the model during attack.</td>
-        <td>0</td>
-        <td id="model-calls">-</td>
-      </tr>
-      <tr>
-        <td>Average Distance</td>
-        <td>Average perturbation magnitude (e.g., L2/L∞ norm).</td>
-        <td>0</td>
-        <td id="avg-distance">-</td>
-      </tr>
-      <tr>
-        <td>Ease of Exploitation</td>
-        <td>Qualitative estimate of how easy it is to attack.</td>
-        <td>-</td>
-        <td id="ease-exploit">-</td>
-      </tr>
-      <tr>
-        <td>Resulting Classification</td>
-        <td>Overall risk level under attack.</td>
-        <td>-</td>
-        <td>
-          <div id="classification" class="classification" style="display:inline-block;padding:4px 8px;border-radius:12px;">-</div>
-        </td>
-      </tr>
-    </table>
-  </section>
+        <div class="form-group">
+          <label for="dataset">Dataset</label>
+          <select id="dataset" name="dataset" required>
+            <option value="" disabled selected>Select a dataset</option>
+            <option value="breast_cancer">Breast Cancer</option>
+          </select>
+        </div>
 
-  <!-- Attack Resistance Score -->
-  <section class="attack-resistance hidden-section" id="attack-resistance">
-    <h2>Attack Resistance Score</h2>
-    <table class="aligned-table" id="resistance-table">
-      <tr>
-        <th>Attack Type</th>
-        <th>Resistance Score</th>
-      </tr>
-    </table>
-  </section>
+        <div class="form-group">
+          <label for="image-specs">Image Specifications</label>
+          <select id="image-specs" name="image-specs" required>
+            <option value="" disabled selected>Select specifications</option>
+            <option value="jpeg_224">JPEG, 224x224, normalized</option>
+            <option value="png_256">PNG, 256x256, normalized</option>
+            <option value="dicom">DICOM</option>
+            <option value="jpeg_custom">JPEG, custom resolution</option>
+          </select>
+        </div>
 
-  <!-- Perturbed Images Table -->
-  <section class="perturbed-images hidden-section" id="perturbed-images">
-    <h2>Perturbed Image Samples</h2>
-    <table>
-      <tr>
-        <th>Before Attack</th>
-        <th>Attack Sample</th>
-        <th>After Attack</th>
-      </tr>
-      <tr>
-        <td>
-          <img id="img-before" src="" alt="Before Attack"><br/>
-          <span id="label-before"></span>
-        </td>
-        <td>
-          <img id="img-attack" src="" alt="Attack Sample"><br/>
-          <span>Attack Applied</span>
-        </td>
-        <td>
-          <img id="img-after" src="" alt="After Attack"><br/>
-          <span id="label-after"></span>
-        </td>
-      </tr>
-    </table>
-  </section>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button type="submit" id="run-btn" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Run Evaluation
+          </button>
+        </div>
+      </form>
+    </div>
 
-  <!-- Recommendations -->
-  <section class="recommendations hidden-section" id="recommendations">
-    <h2>Recommendations</h2>
-    <ul id="rec-list"></ul>
-  </section>
+    <!-- Evaluation Summary -->
+    <section class="hidden-section" id="evaluation-summary">
+      <h2>Evaluation Summary</h2>
+      <div class="glass-panel">
+        <p id="eval-description"></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Description</th>
+              <th>Baseline</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Attack Success Rate</td>
+              <td class="metric-description">Percent of attacks that flipped the model's decision.</td>
+              <td class="baseline-value">0%</td>
+              <td class="metric-value" id="attack-success">-</td>
+            </tr>
+            <tr>
+              <td>Probability Drop</td>
+              <td class="metric-description">Decrease in predicted class probability due to attack.</td>
+              <td class="baseline-value">0</td>
+              <td class="metric-value" id="prob-drop">-</td>
+            </tr>
+            <tr>
+              <td>Computation Time</td>
+              <td class="metric-description">Time required to generate an adversarial example.</td>
+              <td class="baseline-value">0 s</td>
+              <td class="metric-value" id="comp-time">-</td>
+            </tr>
+            <tr>
+              <td>Number of Model Calls</td>
+              <td class="metric-description">Total queries to the model during attack.</td>
+              <td class="baseline-value">0</td>
+              <td class="metric-value" id="model-calls">-</td>
+            </tr>
+            <tr>
+              <td>Average Distance</td>
+              <td class="metric-description">Average perturbation magnitude (e.g., L2/L∞ norm).</td>
+              <td class="baseline-value">0</td>
+              <td class="metric-value" id="avg-distance">-</td>
+            </tr>
+            <tr>
+              <td>Ease of Exploitation</td>
+              <td class="metric-description">Qualitative estimate of how easy it is to attack.</td>
+              <td class="baseline-value">-</td>
+              <td class="metric-value" id="ease-exploit">-</td>
+            </tr>
+            <tr>
+              <td>Resulting Classification</td>
+              <td class="metric-description">Overall risk level under attack.</td>
+              <td class="baseline-value">-</td>
+              <td>
+                <span id="classification" class="classification">-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  <footer>
-    <p>© 2025 Robustness Evaluation Team</p>
-  </footer>
+    <!-- Attack Resistance Score -->
+    <section class="hidden-section" id="attack-resistance">
+      <h2>Attack Resistance Score</h2>
+      <div class="glass-panel">
+        <table id="resistance-table">
+          <thead>
+            <tr>
+              <th>Attack Type</th>
+              <th>Resistance Score</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Perturbed Images -->
+    <section class="hidden-section" id="perturbed-images">
+      <h2>Perturbed Image Samples</h2>
+      <div class="glass-panel">
+        <div class="images-grid">
+          <div class="image-card">
+            <div class="image-label">Before Attack</div>
+            <img id="img-before" src="" alt="Before Attack">
+            <div class="image-result" id="label-before"></div>
+          </div>
+          <div class="image-card attack-card">
+            <div class="image-label">Attack Applied</div>
+            <img id="img-attack" src="" alt="Attack Sample">
+            <div class="image-result">Adversarial Perturbation</div>
+          </div>
+          <div class="image-card">
+            <div class="image-label">After Attack</div>
+            <img id="img-after" src="" alt="After Attack">
+            <div class="image-result" id="label-after"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recommendations -->
+    <section class="hidden-section" id="recommendations">
+      <h2>Recommendations</h2>
+      <div class="glass-panel">
+        <ul class="recommendations-list" id="rec-list"></ul>
+      </div>
+    </section>
+
+    <!-- Reset Button -->
+    <section class="hidden-section" id="reset-section" style="margin-top: 2rem; text-align: center;">
+      <button type="button" id="reset-btn" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        Run New Evaluation
+      </button>
+    </section>
+
+    <footer>
+      <p>© 2026 RedShield AI. All rights reserved.</p>
+    </footer>
+  </div>
 
   <script>
     // --- Simulated evaluation data ---
@@ -256,29 +977,29 @@
       }
     };
 
-    // --- Helpers for inline color coding (no CSS file changes) ---
-    function scoreToColor(percent) {
-      // percent is "85%" -> number 85
-      const p = parseFloat(String(percent).replace('%','')) || 0;
-      if (p >= 90) return {bg:"#2e7d32", fg:"#ffffff", label:"High resistance"};
-      if (p >= 75) return {bg:"#fdd835", fg:"#000000", label:"Moderate resistance"};
-      return {bg:"#c62828", fg:"#ffffff", label:"Low resistance"};
+    // --- Helpers for classification styling ---
+    function getClassificationClass(label) {
+      const t = (label || "").toLowerCase();
+      if (t.includes("critical")) return "classification-critical";
+      if (t.includes("vulnerable")) return "classification-vulnerable";
+      if (t.includes("moderate")) return "classification-moderate";
+      if (t.includes("stable")) return "classification-stable";
+      if (t.includes("robust")) return "classification-robust";
+      return "";
     }
 
-    function classificationStyle(label) {
-      const t = (label || "").toLowerCase();
-      if (t.includes("critical")) return {bg:"#c62828", fg:"#ffffff"};
-      if (t.includes("vulnerable") || t.includes("high")) return {bg:"#ef6c00", fg:"#ffffff"};
-      if (t.includes("moderate")) return {bg:"#fdd835", fg:"#000000"};
-      if (t.includes("stable")) return {bg:"#81c784", fg:"#000000"};
-      if (t.includes("robust") || t.includes("low")) return {bg:"#2e7d32", fg:"#ffffff"};
-      // default
-      return {bg:"#e0e0e0", fg:"#000000"};
+    function getResistanceClass(percent) {
+      const p = parseFloat(String(percent).replace('%','')) || 0;
+      if (p >= 90) return { cls: "resistance-high", label: "High" };
+      if (p >= 75) return { cls: "resistance-medium", label: "Moderate" };
+      return { cls: "resistance-low", label: "Low" };
     }
 
     // --- Form handling ---
     const form = document.getElementById('eval-form');
     const runBtn = document.getElementById('run-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const panelStatus = document.getElementById('panel-status');
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -286,7 +1007,6 @@
       const dataset = document.getElementById('dataset').value;
       const model = document.getElementById('ai-model').value;
 
-      // Basic validation
       if (!dataset || !model) {
         alert("Please select both a dataset and a model.");
         return;
@@ -300,72 +1020,141 @@
         return;
       }
 
-      // Update description
-      document.getElementById('eval-description').innerText = data.description;
-
-      // Update metrics
-      document.getElementById('attack-success').innerText = data.metrics.attackSuccess;
-      document.getElementById('prob-drop').innerText = data.metrics.probDrop;
-      document.getElementById('comp-time').innerText = data.metrics.compTime;
-      document.getElementById('model-calls').innerText = data.metrics.modelCalls;
-      document.getElementById('avg-distance').innerText = data.metrics.avgDistance;
-      document.getElementById('ease-exploit').innerText = data.metrics.easeExploit;
-
-      // Classification with inline color (no CSS changes)
-      const classDiv = document.getElementById('classification');
-      classDiv.textContent = data.metrics.classification;
-      const cls = classificationStyle(data.metrics.classification);
-      classDiv.style.backgroundColor = cls.bg;
-      classDiv.style.color = cls.fg;
-
-      // Update resistance table with colored cells
-      const resistanceTable = document.getElementById('resistance-table');
-      resistanceTable.innerHTML = "<tr><th>Attack Type</th><th>Resistance Score</th></tr>";
-      Object.entries(data.resistance).forEach(([attack, score]) => {
-        const {bg, fg, label} = scoreToColor(score);
-        const row = document.createElement('tr');
-        const tdAttack = document.createElement('td');
-        tdAttack.textContent = attack;
-
-        const tdScore = document.createElement('td');
-        tdScore.textContent = `${score} (${label})`;
-        tdScore.style.backgroundColor = bg;
-        tdScore.style.color = fg;
-        tdScore.style.fontWeight = "600";
-
-        row.appendChild(tdAttack);
-        row.appendChild(tdScore);
-        resistanceTable.appendChild(row);
-      });
-
-      // Update images
-      document.getElementById('img-before').src = data.images.before;
-      document.getElementById('img-attack').src = data.images.attack;
-      document.getElementById('img-after').src = data.images.after;
-      document.getElementById('label-before').innerText = data.images.beforeLabel;
-      document.getElementById('label-after').innerText = data.images.afterLabel;
-
-      // Update recommendations
-      const recList = document.getElementById('rec-list');
-      recList.innerHTML = "";
-      data.recommendations.forEach(rec => {
-        const li = document.createElement('li');
-        li.innerText = rec;
-        recList.appendChild(li);
-      });
-
-      // Reveal sections
-      document.getElementById('evaluation-summary').classList.remove('hidden-section');
-      document.getElementById('attack-resistance').classList.remove('hidden-section');
-      document.getElementById('perturbed-images').classList.remove('hidden-section');
-      document.getElementById('recommendations').classList.remove('hidden-section');
-
-      // Keep user inputs unchanged after click (locks fields)
-      document.getElementById('ai-model').disabled = true;
-      document.getElementById('dataset').disabled = true;
-      document.getElementById('image-specs').disabled = true;
+      // Show running status
+      panelStatus.style.display = 'flex';
       runBtn.disabled = true;
+      runBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+        </svg>
+        Processing...
+      `;
+
+      // Simulate processing delay
+      setTimeout(() => {
+        // Update description
+        document.getElementById('eval-description').innerText = data.description;
+
+        // Update metrics
+        document.getElementById('attack-success').innerText = data.metrics.attackSuccess;
+        document.getElementById('prob-drop').innerText = data.metrics.probDrop;
+        document.getElementById('comp-time').innerText = data.metrics.compTime;
+        document.getElementById('model-calls').innerText = data.metrics.modelCalls;
+        document.getElementById('avg-distance').innerText = data.metrics.avgDistance;
+        document.getElementById('ease-exploit').innerText = data.metrics.easeExploit;
+
+        // Classification badge
+        const classSpan = document.getElementById('classification');
+        classSpan.textContent = data.metrics.classification;
+        classSpan.className = 'classification ' + getClassificationClass(data.metrics.classification);
+
+        // Update resistance table
+        const resistanceTable = document.getElementById('resistance-table');
+        const tbody = resistanceTable.querySelector('tbody') || resistanceTable;
+        tbody.innerHTML = "";
+        Object.entries(data.resistance).forEach(([attack, score]) => {
+          const { cls, label } = getResistanceClass(score);
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${attack}</td>
+            <td class="${cls}" style="font-family: 'JetBrains Mono', monospace; font-weight: 500;">
+              ${score} <span style="opacity: 0.7;">(${label})</span>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        // Update images
+        document.getElementById('img-before').src = data.images.before;
+        document.getElementById('img-attack').src = data.images.attack;
+        document.getElementById('img-after').src = data.images.after;
+        document.getElementById('label-before').innerText = data.images.beforeLabel;
+        document.getElementById('label-after').innerText = data.images.afterLabel;
+
+        // Update recommendations
+        const recList = document.getElementById('rec-list');
+        recList.innerHTML = "";
+        data.recommendations.forEach(rec => {
+          const li = document.createElement('li');
+          li.innerText = rec;
+          recList.appendChild(li);
+        });
+
+        // Reveal sections
+        document.getElementById('evaluation-summary').classList.remove('hidden-section');
+        document.getElementById('attack-resistance').classList.remove('hidden-section');
+        document.getElementById('perturbed-images').classList.remove('hidden-section');
+        document.getElementById('recommendations').classList.remove('hidden-section');
+        document.getElementById('reset-section').classList.remove('hidden-section');
+
+        // Lock inputs
+        document.getElementById('ai-model').disabled = true;
+        document.getElementById('dataset').disabled = true;
+        document.getElementById('image-specs').disabled = true;
+
+        // Update status
+        panelStatus.innerHTML = `Complete`;
+        panelStatus.style.color = 'var(--success)';
+
+        // Scroll to results
+        document.getElementById('evaluation-summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      }, 1500);
+    });
+
+    // Reset functionality
+    resetBtn.addEventListener('click', function() {
+      // Re-enable inputs
+      document.getElementById('ai-model').disabled = false;
+      document.getElementById('dataset').disabled = false;
+      document.getElementById('image-specs').disabled = false;
+
+      // Reset form
+      form.reset();
+
+      // Reset button
+      runBtn.disabled = false;
+      runBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Run Evaluation
+      `;
+
+      // Hide status
+      panelStatus.style.display = 'none';
+
+      // Hide sections
+      document.getElementById('evaluation-summary').classList.add('hidden-section');
+      document.getElementById('attack-resistance').classList.add('hidden-section');
+      document.getElementById('perturbed-images').classList.add('hidden-section');
+      document.getElementById('recommendations').classList.add('hidden-section');
+      document.getElementById('reset-section').classList.add('hidden-section');
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Parallax shards
+    document.addEventListener('mousemove', (e) => {
+      const moveX = (e.clientX - window.innerWidth / 2) * 0.008;
+      const moveY = (e.clientY - window.innerHeight / 2) * 0.008;
+      
+      document.querySelectorAll('.shard').forEach((shard, index) => {
+        const factor = (index + 1) * 1.5;
+        shard.style.transform = `translate(${moveX * factor}px, ${moveY * factor}px) rotate(${15 - index * 25 + moveX}deg)`;
+      });
     });
   </script>
+
+  <style>
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+  </style>
 </body>
 </html>
